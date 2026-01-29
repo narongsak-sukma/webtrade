@@ -3,12 +3,14 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Navigation } from '@/components/layout/Navigation';
+import { StockPriceChart } from '@/components/StockPriceChart';
 
 interface ExpertRecommendation {
   symbol: string;
   name: string | null;
   market: string;
   currency: string;
+  price?: number;
   screeningScore: number;
   consensusScore: number;
   expertScores: Array<{
@@ -26,6 +28,7 @@ export default function SignalsPage() {
   const [market, setMarket] = useState<string>('all');
   const [lastUpdate, setLastUpdate] = useState<string>('');
   const [selectedStock, setSelectedStock] = useState<ExpertRecommendation | null>(null);
+  const [chartStock, setChartStock] = useState<ExpertRecommendation | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -444,9 +447,12 @@ export default function SignalsPage() {
                             {rec.market === 'TH' ? '🇹🇭 TH' : '🇺🇸 US'}
                           </span>
                         </div>
-                        <p className="text-sm text-text-secondary">
+                        <button
+                          onClick={() => setChartStock(rec)}
+                          className="text-sm text-text-secondary hover:text-primary hover:underline transition-all text-left"
+                        >
                           {rec.name || 'N/A'}
-                        </p>
+                        </button>
                       </div>
                     </div>
                     <span className={`px-4 py-2 rounded-xl border ${config.bg} ${config.border} ${config.text} font-semibold text-sm flex items-center gap-2`}>
@@ -747,6 +753,18 @@ export default function SignalsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Price Chart Modal */}
+      {chartStock && (
+        <StockPriceChart
+          symbol={chartStock.symbol}
+          name={chartStock.name || chartStock.symbol}
+          market={chartStock.market}
+          currency={chartStock.currency}
+          currentPrice={chartStock.price || 0}
+          onClose={() => setChartStock(null)}
+        />
       )}
     </div>
   );

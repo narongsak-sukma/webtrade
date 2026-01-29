@@ -51,6 +51,7 @@ export function StockPriceChart({
 
   const currencySymbol = currency === 'THB' ? '฿' : '$';
   const marketIcon = market === 'TH' ? '🇹🇭' : '🇺🇸';
+  const numericPrice = typeof currentPrice === 'number' ? currentPrice : parseFloat(currentPrice as any) || 0;
 
   useEffect(() => {
     fetchPriceData();
@@ -228,7 +229,7 @@ export function StockPriceChart({
           <div className="mt-4 flex items-baseline gap-4">
             <div className="text-4xl font-bold text-white">
               {currencySymbol}
-              {currentPrice.toFixed(2)}
+              {numericPrice.toFixed(2)}
             </div>
             <div className={`flex items-center gap-2 text-lg font-semibold ${isPositive ? 'text-success' : 'text-danger'}`}>
               {isPositive ? (
@@ -331,7 +332,7 @@ export function StockPriceChart({
                   />
                 )}
                 <ReferenceLine
-                  yValue={currentPrice}
+                  yValue={numericPrice}
                   stroke="#F59E0B"
                   strokeWidth={1}
                   strokeDasharray="3 3"

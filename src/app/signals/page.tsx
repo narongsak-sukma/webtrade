@@ -447,12 +447,9 @@ export default function SignalsPage() {
                             {rec.market === 'TH' ? '🇹🇭 TH' : '🇺🇸 US'}
                           </span>
                         </div>
-                        <button
-                          onClick={() => setChartStock(rec)}
-                          className="text-sm text-text-secondary hover:text-primary hover:underline transition-all text-left"
-                        >
+                        <p className="text-sm text-text-secondary">
                           {rec.name || 'N/A'}
-                        </button>
+                        </p>
                       </div>
                     </div>
                     <span className={`px-4 py-2 rounded-xl border ${config.bg} ${config.border} ${config.text} font-semibold text-sm flex items-center gap-2`}>
@@ -637,6 +634,38 @@ export default function SignalsPage() {
                   </div>
                 );
               })()}
+
+              {/* Chart Button - Only for BUY or STRONG BUY recommendations */}
+              {(selectedStock.finalRecommendation === 'STRONG BUY' || selectedStock.finalRecommendation === 'BUY') && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('Opening chart for recommended stock:', selectedStock.symbol);
+                    setChartStock(selectedStock);
+                    setSelectedStock(null);
+                  }}
+                  className="w-full p-6 rounded-xl bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 border-2 border-primary/40 hover:border-primary hover:from-primary/30 hover:via-primary/20 hover:to-primary/30 transition-all duration-300 group"
+                >
+                  <div className="flex items-center justify-center gap-4">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                      </svg>
+                    </div>
+                    <div className="text-left flex-1">
+                      <h3 className="text-xl font-bold text-white mb-1 group-hover:text-primary-light transition-colors">
+                        View Price Chart & Technical Analysis
+                      </h3>
+                      <p className="text-text-secondary text-sm">
+                        Historical prices, moving averages, volume charts, and more
+                      </p>
+                    </div>
+                    <svg className="w-6 h-6 text-primary group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </button>
+              )}
 
               {/* Consensus Explanation */}
               <div className="p-6 rounded-xl bg-bg-secondary/50 border border-border">

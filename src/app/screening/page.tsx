@@ -306,56 +306,6 @@ AVOID or keep on watchlist until technical conditions improve.`;
               </svg>
               <span className="text-text-secondary group-hover:text-primary transition-colors font-medium">Back to Pipeline</span>
             </Link>
-            <button
-              onClick={() => {
-                console.log('Test chart button clicked!');
-                setChartStock({
-                  symbol: 'ICE',
-                  name: 'Intercontinental Exchange',
-                  market: 'US',
-                  currency: 'USD',
-                  price: 5018.44,
-                  passedCriteria: 13,
-                  totalCriteria: 14,
-                  ma50: 0,
-                  ma150: 0,
-                  ma200: 0,
-                  priceAboveMa150: true,
-                  ma150AboveMa200: true,
-                  ma200TrendingUp: true,
-                  ma50AboveMa150: true,
-                  priceAboveMa50: true,
-                  priceAbove52WeekLow: true,
-                  priceNear52WeekHigh: true,
-                  relativeStrengthPositive: true,
-                  rsi: 65,
-                  rsiInRange: true,
-                  volume: 1000000,
-                  volumeAvg50: 1000000,
-                  volumeAboveAvg: true,
-                  macd: 10,
-                  macdSignal: 8,
-                  macdBullish: true,
-                  adx: 30,
-                  adxStrong: true,
-                  ma20: 5000,
-                  priceAboveMa20: true,
-                  bollingerUpper: 5100,
-                  bollingerMiddle: 5000,
-                  bollingerLower: 4900,
-                  priceInBBRange: true,
-                  week52Low: 4500,
-                  week52High: 5100,
-                  relativeStrength: 1.5,
-                });
-              }}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-primary to-primary-dark text-white font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-              </svg>
-              Test Stock Chart
-            </button>
           </div>
 
           {/* Info Banner */}
@@ -668,16 +618,8 @@ AVOID or keep on watchlist until technical conditions improve.`;
                       <td className="font-mono font-bold text-white group-hover:text-primary transition-colors">
                         {stock.symbol}
                       </td>
-                      <td>
-                        <button
-                          onClick={() => {
-                            console.log('Chart button clicked!', stock);
-                            setChartStock(stock);
-                          }}
-                          className="text-text-secondary hover:text-primary hover:underline transition-all duration-200 text-left font-medium cursor-pointer"
-                        >
-                          📈 {stock.name || '-'}
-                        </button>
+                      <td className="text-text-secondary">
+                        {stock.name || '-'}
                       </td>
                       <td>
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
@@ -845,6 +787,38 @@ AVOID or keep on watchlist until technical conditions improve.`;
                   </div>
                 </div>
               </div>
+
+              {/* Chart Button - Only for Elite Stocks with Buy Signal */}
+              {selectedStock.passedCriteria >= 13 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('Opening chart for elite stock:', selectedStock.symbol);
+                    setChartStock(selectedStock);
+                    setSelectedStock(null);
+                  }}
+                  className="w-full p-6 rounded-xl bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 border-2 border-primary/40 hover:border-primary hover:from-primary/30 hover:via-primary/20 hover:to-primary/30 transition-all duration-300 group"
+                >
+                  <div className="flex items-center justify-center gap-4">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                      </svg>
+                    </div>
+                    <div className="text-left flex-1">
+                      <h3 className="text-xl font-bold text-white mb-1 group-hover:text-primary-light transition-colors">
+                        View Price Chart & Technical Analysis
+                      </h3>
+                      <p className="text-text-secondary text-sm">
+                        Historical prices, moving averages, volume charts, and more
+                      </p>
+                    </div>
+                    <svg className="w-6 h-6 text-primary group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </button>
+              )}
 
               {/* Explanation */}
               <div className={`p-6 rounded-xl border ${

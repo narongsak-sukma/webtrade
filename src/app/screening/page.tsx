@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Navigation } from '@/components/layout/Navigation';
+import { ProcessControlPanel } from '@/components/ProcessControlPanel';
 
 interface StockData {
   symbol: string;
@@ -461,6 +462,9 @@ AVOID or keep on watchlist until technical conditions improve.`;
             </p>
           </div>
         </div>
+
+        {/* Process Control Panel */}
+        <ProcessControlPanel />
 
         {/* Filter Section */}
         <div className="card-premium p-6 mb-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>

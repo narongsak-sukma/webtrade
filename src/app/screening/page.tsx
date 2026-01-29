@@ -7,6 +7,8 @@ import { Navigation } from '@/components/layout/Navigation';
 interface StockData {
   symbol: string;
   name: string | null;
+  market: string;
+  currency: string;
   price: number;
   ma50: number;
   ma150: number;
@@ -53,21 +55,25 @@ export default function ScreeningPage() {
   const [filteredStocks, setFilteredStocks] = useState<StockData[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
+  const [market, setMarket] = useState<string>('all');
   const [selectedStock, setSelectedStock] = useState<StockData | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     fetchData();
-  }, []);
+  }, [market]);
 
   useEffect(() => {
-    applyFilter();
-  }, [stocks, filter]);
+    if (stocks.length > 0) {
+      applyFilter();
+    }
+  }, [stocks, filter, market]);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
-      const res = await fetch('/api/screening/results');
+      const res = await fetch(`/api/screening/results?market=${market}`);
       const data = await res.json();
       setStocks(data);
       setLoading(false);
@@ -78,18 +84,25 @@ export default function ScreeningPage() {
   };
 
   const applyFilter = () => {
+    let filtered;
     if (filter === 'all') {
-      setFilteredStocks(stocks);
+      filtered = stocks;
     } else if (filter === 'elite') {
-      setFilteredStocks(stocks.filter(s => s.passedCriteria >= 13));
+      filtered = stocks.filter(s => s.passedCriteria >= 13);
     } else if (filter === 'qualified') {
-      setFilteredStocks(stocks.filter(s => s.passedCriteria >= 10 && s.passedCriteria < 13));
+      filtered = stocks.filter(s => s.passedCriteria >= 10 && s.passedCriteria < 13);
     } else if (filter === 'failed') {
-      setFilteredStocks(stocks.filter(s => s.passedCriteria < 10));
+      filtered = stocks.filter(s => s.passedCriteria < 10);
     } else {
       const criteria = parseInt(filter);
-      setFilteredStocks(stocks.filter(s => s.passedCriteria === criteria));
+      filtered = stocks.filter(s => s.passedCriteria === criteria);
     }
+    setFilteredStocks(filtered);
+    console.log(`Filter applied: ${filter}, Stocks: ${stocks.length}, Filtered: ${filtered.length}`);
+  };
+
+  const getCurrencySymbol = (currency: string): string => {
+    return currency === 'THB' ? '฿' : '$';
   };
 
   const getFilterInfo = (key: string): { label: string; explanation: string; category: string } => {
@@ -244,6 +257,43 @@ AVOID or keep on watchlist until technical conditions improve.`;
                 Advanced Technical Analysis • {stocks.length} Stocks Analyzed • 14 Explainable Filters
               </p>
             </div>
+
+            {/* Market Selector */}
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-text-secondary font-medium">Market:</span>
+              <div className="flex rounded-lg overflow-hidden border border-border">
+                <button
+                  onClick={() => setMarket('all')}
+                  className={`px-4 py-2 text-sm font-medium transition-all ${
+                    market === 'all'
+                      ? 'bg-primary text-white'
+                      : 'bg-bg-card text-text-secondary hover:text-white hover:bg-bg-secondary'
+                  }`}
+                >
+                  All Markets
+                </button>
+                <button
+                  onClick={() => setMarket('US')}
+                  className={`px-4 py-2 text-sm font-medium transition-all ${
+                    market === 'US'
+                      ? 'bg-primary text-white'
+                      : 'bg-bg-card text-text-secondary hover:text-white hover:bg-bg-secondary'
+                  }`}
+                >
+                  🇺🇸 US (S&P 500)
+                </button>
+                <button
+                  onClick={() => setMarket('TH')}
+                  className={`px-4 py-2 text-sm font-medium transition-all ${
+                    market === 'TH'
+                      ? 'bg-primary text-white'
+                      : 'bg-bg-card text-text-secondary hover:text-white hover:bg-bg-secondary'
+                  }`}
+                >
+                  🇹🇭 TH (SET100)
+                </button>
+              </div>
+            </div>
             <Link
               href="/pipeline"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-bg-card border border-border hover:border-primary transition-all duration-300 group"
@@ -303,7 +353,10 @@ AVOID or keep on watchlist until technical conditions improve.`;
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-          <div className="stat-card group">
+          <div
+            onClick={() => setFilter('all')}
+            className={`stat-card group cursor-pointer hover:scale-105 transition-transform duration-200 ${filter === 'all' ? 'ring-2 ring-primary/50' : ''}`}
+          >
             <div className="flex items-center justify-between mb-3">
               <span className="text-text-secondary text-sm font-medium">Total Screened</span>
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -313,10 +366,18 @@ AVOID or keep on watchlist until technical conditions improve.`;
               </div>
             </div>
             <p className="metric-value">{stocks.length}</p>
-            <p className="text-xs text-text-secondary mt-2">Stocks analyzed</p>
+            <p className="text-xs text-text-secondary mt-2 flex items-center gap-1">
+              Stocks analyzed
+              <svg className="w-3 h-3 text-primary opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </p>
           </div>
 
-          <div className="stat-card-success group">
+          <div
+            onClick={() => setFilter('qualified')}
+            className={`stat-card-success group cursor-pointer hover:scale-105 transition-transform duration-200 ${filter === 'qualified' ? 'ring-2 ring-success/50' : ''}`}
+          >
             <div className="flex items-center justify-between mb-3">
               <span className="text-text-secondary text-sm font-medium">Qualified (10+/14)</span>
               <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center group-hover:bg-success/20 transition-colors">
@@ -339,9 +400,19 @@ AVOID or keep on watchlist until technical conditions improve.`;
                 {stocks.length > 0 ? ((stocks.filter((s: StockData) => s.passedCriteria >= 10).length / stocks.length) * 100).toFixed(1) : 0}%
               </span>
             </div>
+            <p className="text-xs text-text-secondary mt-2 flex items-center gap-1">
+              Click to view
+              <svg className="w-3 h-3 text-success opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </p>
           </div>
 
-          <div className="stat-card group relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(0, 212, 170, 0.15) 0%, rgba(0, 212, 170, 0.05) 100%)', border: '2px solid rgba(0, 212, 170, 0.3)', boxShadow: '0 0 30px rgba(0, 212, 170, 0.4)' }}>
+          <div
+            onClick={() => setFilter('elite')}
+            className={`stat-card group relative overflow-hidden cursor-pointer hover:scale-105 transition-transform duration-200 ${filter === 'elite' ? 'ring-2 ring-primary/50' : ''}`}
+            style={{ background: 'linear-gradient(135deg, rgba(0, 212, 170, 0.15) 0%, rgba(0, 212, 170, 0.05) 100%)', border: '2px solid rgba(0, 212, 170, 0.3)', boxShadow: '0 0 30px rgba(0, 212, 170, 0.4)' }}
+          >
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
             <div className="relative">
               <div className="flex items-center justify-between mb-3">
@@ -358,11 +429,19 @@ AVOID or keep on watchlist until technical conditions improve.`;
               <p className="metric-value" style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #00D4AA 50%, #5DF5CE 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontSize: '2.5rem' }}>
                 {stocks.filter((s: StockData) => s.passedCriteria >= 13).length}
               </p>
-              <p className="text-xs text-text-secondary mt-2 font-medium">⭐ Elite setups with ML signals</p>
+              <p className="text-xs text-text-secondary mt-2 font-medium flex items-center gap-1">
+                ⭐ Elite setups with ML signals
+                <svg className="w-3 h-3 text-primary opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </p>
             </div>
           </div>
 
-          <div className="stat-card-danger">
+          <div
+            onClick={() => setFilter('failed')}
+            className={`stat-card-danger cursor-pointer hover:scale-105 transition-transform duration-200 ${filter === 'failed' ? 'ring-2 ring-danger/50' : ''}`}
+          >
             <div className="flex items-center justify-between mb-3">
               <span className="text-text-secondary text-sm font-medium">Failed (0-9/14)</span>
               <div className="w-10 h-10 rounded-lg bg-danger/10 flex items-center justify-center group-hover:bg-danger/20 transition-colors">
@@ -374,7 +453,12 @@ AVOID or keep on watchlist until technical conditions improve.`;
             <p className="metric-value" style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #EF4444 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               {stocks.filter((s: StockData) => s.passedCriteria < 10).length}
             </p>
-            <p className="text-xs text-text-secondary mt-2">Below threshold</p>
+            <p className="text-xs text-text-secondary mt-2 flex items-center gap-1">
+              Below threshold
+              <svg className="w-3 h-3 text-danger opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </p>
           </div>
         </div>
 
@@ -394,13 +478,26 @@ AVOID or keep on watchlist until technical conditions improve.`;
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setFilter('all')}
-              className={`filter-tag ${filter === 'all' ? 'filter-tag-active' : ''}`}
+              className={`filter-tag transition-all duration-200 ${
+                filter === 'all'
+                  ? 'ring-2 ring-primary/50 scale-105'
+                  : 'hover:scale-105'
+              }`}
+              style={filter === 'all' ? {
+                background: 'linear-gradient(135deg, #00D4AA 0%, #00B894 100%)',
+                borderColor: '#00D4AA',
+                boxShadow: '0 0 15px rgba(0, 212, 170, 0.3)'
+              } : {}}
             >
               All ({stocks.length})
             </button>
             <button
               onClick={() => setFilter('elite')}
-              className={`filter-tag ${filter === 'elite' ? 'filter-tag-active' : ''}`}
+              className={`filter-tag transition-all duration-200 ${
+                filter === 'elite'
+                  ? 'ring-2 ring-primary/50 scale-105'
+                  : 'hover:scale-105'
+              }`}
               style={filter === 'elite' ? {
                 background: 'linear-gradient(135deg, #00D4AA 0%, #00B894 100%)',
                 borderColor: '#00D4AA',
@@ -415,15 +512,31 @@ AVOID or keep on watchlist until technical conditions improve.`;
             </button>
             <button
               onClick={() => setFilter('qualified')}
-              className={`filter-tag ${filter === 'qualified' ? 'filter-tag-active' : ''}`}
-              style={filter === 'qualified' ? { background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)', borderColor: '#10B981' } : {}}
+              className={`filter-tag transition-all duration-200 ${
+                filter === 'qualified'
+                  ? 'ring-2 ring-success/50 scale-105'
+                  : 'hover:scale-105'
+              }`}
+              style={filter === 'qualified' ? {
+                background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                borderColor: '#10B981',
+                boxShadow: '0 0 15px rgba(16, 185, 129, 0.3)'
+              } : {}}
             >
               Qualified 10+ ({stocks.filter((s: StockData) => s.passedCriteria >= 10).length})
             </button>
             <button
               onClick={() => setFilter('failed')}
-              className={`filter-tag ${filter === 'failed' ? 'filter-tag-active' : ''}`}
-              style={filter === 'failed' ? { background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)', borderColor: '#EF4444' } : {}}
+              className={`filter-tag transition-all duration-200 ${
+                filter === 'failed'
+                  ? 'ring-2 ring-danger/50 scale-105'
+                  : 'hover:scale-105'
+              }`}
+              style={filter === 'failed' ? {
+                background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                borderColor: '#EF4444',
+                boxShadow: '0 0 15px rgba(239, 68, 68, 0.3)'
+              } : {}}
             >
               Failed 0-9 ({stocks.filter((s: StockData) => s.passedCriteria < 10).length})
             </button>
@@ -431,12 +544,25 @@ AVOID or keep on watchlist until technical conditions improve.`;
               <button
                 key={n}
                 onClick={() => setFilter(n.toString())}
-                className={`filter-tag ${filter === n.toString() ? 'filter-tag-active' : ''}`}
+                className={`filter-tag transition-all duration-200 ${
+                  filter === n.toString()
+                    ? 'ring-2 scale-105'
+                    : 'hover:scale-105'
+                } ${
+                  filter === n.toString() && n >= 10
+                    ? 'ring-success/50'
+                    : filter === n.toString()
+                    ? 'ring-danger/50'
+                    : ''
+                }`}
                 style={filter === n.toString() ? {
                   background: n >= 10
                     ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
                     : 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-                  borderColor: n >= 10 ? '#10B981' : '#EF4444'
+                  borderColor: n >= 10 ? '#10B981' : '#EF4444',
+                  boxShadow: n >= 10
+                    ? '0 0 15px rgba(16, 185, 129, 0.3)'
+                    : '0 0 15px rgba(239, 68, 68, 0.3)'
                 } : {}}
               >
                 {n}/14
@@ -462,6 +588,7 @@ AVOID or keep on watchlist until technical conditions improve.`;
                   <tr>
                     <th className="rounded-tl-lg">Symbol</th>
                     <th>Company</th>
+                    <th>Market</th>
                     <th>Price</th>
                     <th>Score</th>
                     <th>Status</th>
@@ -489,8 +616,17 @@ AVOID or keep on watchlist until technical conditions improve.`;
                         {stock.name || '-'}
                       </td>
                       <td>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                          stock.market === 'TH'
+                            ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                            : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                        }`}>
+                          {stock.market === 'TH' ? '🇹🇭 TH' : '🇺🇸 US'}
+                        </span>
+                      </td>
+                      <td>
                         <span className="inline-flex items-center gap-1 font-mono text-white">
-                          <span className="text-text-secondary text-sm">$</span>
+                          <span className="text-text-secondary text-sm">{getCurrencySymbol(stock.currency)}</span>
                           {parseFloat(stock.price).toFixed(2)}
                         </span>
                       </td>
@@ -816,7 +952,7 @@ AVOID or keep on watchlist until technical conditions improve.`;
                   <div className="p-4 rounded-xl bg-bg-secondary border border-border hover:border-primary/50 transition-all">
                     <p className="text-text-secondary text-xs mb-2">Current Price</p>
                     <p className="text-xl font-bold font-mono text-white">
-                      ${parseFloat(selectedStock.price).toFixed(2)}
+                      {getCurrencySymbol(selectedStock.currency)}{parseFloat(selectedStock.price).toFixed(2)}
                     </p>
                   </div>
                   <div className="p-4 rounded-xl bg-bg-secondary border border-border hover:border-primary/50 transition-all">
@@ -840,25 +976,25 @@ AVOID or keep on watchlist until technical conditions improve.`;
                   <div className="p-4 rounded-xl bg-bg-secondary border border-border hover:border-primary/50 transition-all">
                     <p className="text-text-secondary text-xs mb-2">MA20</p>
                     <p className="text-xl font-bold font-mono text-white">
-                      ${selectedStock.ma20?.toFixed(2) || 'N/A'}
+                      {getCurrencySymbol(selectedStock.currency)}{selectedStock.ma20?.toFixed(2) || 'N/A'}
                     </p>
                   </div>
                   <div className="p-4 rounded-xl bg-bg-secondary border border-border hover:border-primary/50 transition-all">
                     <p className="text-text-secondary text-xs mb-2">MA50</p>
                     <p className="text-xl font-bold font-mono text-white">
-                      ${parseFloat(selectedStock.ma50).toFixed(2)}
+                      {getCurrencySymbol(selectedStock.currency)}{parseFloat(selectedStock.ma50).toFixed(2)}
                     </p>
                   </div>
                   <div className="p-4 rounded-xl bg-bg-secondary border border-border hover:border-primary/50 transition-all">
                     <p className="text-text-secondary text-xs mb-2">MA150</p>
                     <p className="text-xl font-bold font-mono text-white">
-                      ${parseFloat(selectedStock.ma150).toFixed(2)}
+                      {getCurrencySymbol(selectedStock.currency)}{parseFloat(selectedStock.ma150).toFixed(2)}
                     </p>
                   </div>
                   <div className="p-4 rounded-xl bg-bg-secondary border border-border hover:border-primary/50 transition-all">
                     <p className="text-text-secondary text-xs mb-2">MA200</p>
                     <p className="text-xl font-bold font-mono text-white">
-                      ${parseFloat(selectedStock.ma200).toFixed(2)}
+                      {getCurrencySymbol(selectedStock.currency)}{parseFloat(selectedStock.ma200).toFixed(2)}
                     </p>
                   </div>
                 </div>

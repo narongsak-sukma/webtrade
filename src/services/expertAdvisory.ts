@@ -15,6 +15,8 @@ interface ExpertScore {
 interface StockRecommendation {
   symbol: string;
   name: string;
+  market: string;
+  currency: string;
   screeningScore: number;
   consensusScore: number;
   expertScores: ExpertScore[];
@@ -189,19 +191,29 @@ const buffettExpert = (stock: any): ExpertScore => {
  * Get consensus recommendation from 3 experts
  * Now uses 14 criteria instead of 8 (more explainable filters)
  */
-export async function getExpertRecommendations(limit: number = 5): Promise<StockRecommendation[]> {
+export async function getExpertRecommendations(limit: number = 5, market?: string): Promise<StockRecommendation[]> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  // Build where clause for market filter
+  const whereClause: any = {
+    date: { gte: today },
+    passedCriteria: { gte: 10 }  // Increased from 6 to 10 (14 criteria total)
+  };
+
+  // If market specified, filter by it
+  if (market && market !== 'all') {
+    whereClause.stock = {
+      market: market.toUpperCase(),
+    };
+  }
+
   // Get qualified stocks from latest screening (require 10+ out of 14 criteria)
   const qualifiedStocks = await prisma.screenedStock.findMany({
-    where: {
-      date: { gte: today },
-      passedCriteria: { gte: 10 }  // Increased from 6 to 10 (14 criteria total)
-    },
+    where: whereClause,
     include: {
       stock: {
-        select: { name: true, sector: true }
+        select: { name: true, sector: true, market: true, currency: true }
       }
     },
     orderBy: { passedCriteria: 'desc' }
@@ -246,6 +258,8 @@ export async function getExpertRecommendations(limit: number = 5): Promise<Stock
     recommendations.push({
       symbol: screenedStock.symbol,
       name: screenedStock.stock?.name || screenedStock.symbol,
+      market: screenedStock.stock?.market || 'US',
+      currency: screenedStock.stock?.currency || 'USD',
       screeningScore: screenedStock.passedCriteria,
       consensusScore: Math.round(avgScore),
       expertScores,

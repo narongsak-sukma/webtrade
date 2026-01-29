@@ -53,7 +53,8 @@ async function runScreening() {
         continue;
       }
 
-      // Store screening result
+      // Store screening result - the screener already saved to DB, but we'll ensure it
+      // The screener returns flat structure, not nested criteria/technicalIndicators
       await prisma.screenedStock.upsert({
         where: {
           symbol_date: {
@@ -66,18 +67,38 @@ async function runScreening() {
           ma50: result.ma50,
           ma150: result.ma150,
           ma200: result.ma200,
-          priceAboveMa150: result.criteria?.priceAboveMa150 ?? false,
-          ma150AboveMa200: result.criteria?.ma150AboveMa200 ?? false,
-          ma200TrendingUp: result.criteria?.ma200TrendingUp ?? false,
-          ma50AboveMa150: result.criteria?.ma50AboveMa150 ?? false,
-          priceAboveMa50: result.criteria?.priceAboveMa50 ?? false,
-          priceAbove52WeekLow: result.criteria?.priceAbove52wLow ?? false,
-          priceNear52WeekHigh: result.criteria?.priceNear52wHigh ?? false,
-          relativeStrengthPositive: result.criteria?.rsPositive ?? false,
+          // Minervini Criteria 1-8 - flat structure from screener
+          priceAboveMa150: result.priceAboveMa150,
+          ma150AboveMa200: result.ma150AboveMa200,
+          ma200TrendingUp: result.ma200TrendingUp,
+          ma50AboveMa150: result.ma50AboveMa150,
+          priceAboveMa50: result.priceAboveMa50,
+          priceAbove52WeekLow: result.priceAbove52WeekLow,
+          priceNear52WeekHigh: result.priceNear52WeekHigh,
+          relativeStrengthPositive: result.relativeStrengthPositive,
+          // Technical Filters 9-14 - flat structure from screener
+          rsi: result.rsi,
+          rsiInRange: result.rsiInRange ?? false,
+          volume: result.volume,
+          volumeAvg50: result.volumeAvg50,
+          volumeAboveAvg: result.volumeAboveAvg ?? false,
+          macd: result.macd,
+          macdSignal: result.macdSignal,
+          macdBullish: result.macdBullish ?? false,
+          adx: result.adx,
+          adxStrong: result.adxStrong ?? false,
+          ma20: result.ma20,
+          priceAboveMa20: result.priceAboveMa20 ?? false,
+          bollingerUpper: result.bollingerUpper,
+          bollingerMiddle: result.bollingerMiddle,
+          bollingerLower: result.bollingerLower,
+          priceInBBRange: result.priceInBBRange ?? false,
+          // Metadata
           week52Low: result.week52Low,
           week52High: result.week52High,
           relativeStrength: result.relativeStrength,
           passedCriteria: result.passedCriteria,
+          totalCriteria: result.totalCriteria ?? 14,
         },
         create: {
           symbol: result.symbol,
@@ -86,18 +107,38 @@ async function runScreening() {
           ma50: result.ma50,
           ma150: result.ma150,
           ma200: result.ma200,
-          priceAboveMa150: result.criteria?.priceAboveMa150 ?? false,
-          ma150AboveMa200: result.criteria?.ma150AboveMa200 ?? false,
-          ma200TrendingUp: result.criteria?.ma200TrendingUp ?? false,
-          ma50AboveMa150: result.criteria?.ma50AboveMa150 ?? false,
-          priceAboveMa50: result.criteria?.priceAboveMa50 ?? false,
-          priceAbove52WeekLow: result.criteria?.priceAbove52wLow ?? false,
-          priceNear52WeekHigh: result.criteria?.priceNear52wHigh ?? false,
-          relativeStrengthPositive: result.criteria?.rsPositive ?? false,
+          // Minervini Criteria 1-8 - flat structure from screener
+          priceAboveMa150: result.priceAboveMa150,
+          ma150AboveMa200: result.ma150AboveMa200,
+          ma200TrendingUp: result.ma200TrendingUp,
+          ma50AboveMa150: result.ma50AboveMa150,
+          priceAboveMa50: result.priceAboveMa50,
+          priceAbove52WeekLow: result.priceAbove52WeekLow,
+          priceNear52WeekHigh: result.priceNear52WeekHigh,
+          relativeStrengthPositive: result.relativeStrengthPositive,
+          // Technical Filters 9-14 - flat structure from screener
+          rsi: result.rsi,
+          rsiInRange: result.rsiInRange ?? false,
+          volume: result.volume,
+          volumeAvg50: result.volumeAvg50,
+          volumeAboveAvg: result.volumeAboveAvg ?? false,
+          macd: result.macd,
+          macdSignal: result.macdSignal,
+          macdBullish: result.macdBullish ?? false,
+          adx: result.adx,
+          adxStrong: result.adxStrong ?? false,
+          ma20: result.ma20,
+          priceAboveMa20: result.priceAboveMa20 ?? false,
+          bollingerUpper: result.bollingerUpper,
+          bollingerMiddle: result.bollingerMiddle,
+          bollingerLower: result.bollingerLower,
+          priceInBBRange: result.priceInBBRange ?? false,
+          // Metadata
           week52Low: result.week52Low,
           week52High: result.week52High,
           relativeStrength: result.relativeStrength,
           passedCriteria: result.passedCriteria,
+          totalCriteria: result.totalCriteria ?? 14,
         },
       });
 

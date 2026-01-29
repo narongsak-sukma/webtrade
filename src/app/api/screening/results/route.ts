@@ -10,17 +10,49 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const { searchParams } = new URL(request.url);
+    const market = searchParams.get('market'); // 'US', 'TH', or undefined for all
+
+    // Build where clause for market filter
+    const whereClause: any = {};
+
+    // If market specified, filter by it
+    if (market && market !== 'all') {
+      whereClause.stock = {
+        market: market.toUpperCase(),
+      };
+    }
+
+    // Get the latest screening date
+    const latestResult = await prisma.screenedStock.findFirst({
+      where: whereClause,
+      orderBy: { date: 'desc' },
+      select: { date: true },
+    });
+
+    if (!latestResult) {
+      return NextResponse.json([]);
+    }
+
+    // Get all stocks screened on the latest date
+    const latestDate = latestResult.date;
+    latestDate.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(latestDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    whereClause.date = {
+      gte: latestDate,
+      lte: endOfDay,
+    };
 
     const screenedStocks = await prisma.screenedStock.findMany({
-      where: {
-        date: { gte: today },
-      },
+      where: whereClause,
       include: {
         stock: {
           select: {
             name: true,
+            market: true,
+            currency: true,
           },
         },
       },
@@ -32,6 +64,8 @@ export async function GET(request: NextRequest) {
     const results = screenedStocks.map(stock => ({
       symbol: stock.symbol,
       name: stock.stock?.name || null,
+      market: stock.stock?.market || 'US',
+      currency: stock.stock?.currency || 'USD',
       date: stock.date,
       price: stock.price,
       ma50: stock.ma50,

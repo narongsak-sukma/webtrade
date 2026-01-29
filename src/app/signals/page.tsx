@@ -7,6 +7,8 @@ import { Navigation } from '@/components/layout/Navigation';
 interface ExpertRecommendation {
   symbol: string;
   name: string | null;
+  market: string;
+  currency: string;
   screeningScore: number;
   consensusScore: number;
   expertScores: Array<{
@@ -21,6 +23,7 @@ interface ExpertRecommendation {
 export default function SignalsPage() {
   const [recommendations, setRecommendations] = useState<ExpertRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [market, setMarket] = useState<string>('all');
   const [lastUpdate, setLastUpdate] = useState<string>('');
   const [selectedStock, setSelectedStock] = useState<ExpertRecommendation | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -28,11 +31,13 @@ export default function SignalsPage() {
   useEffect(() => {
     setMounted(true);
     fetchRecommendations();
-  }, []);
+  }, [market]);
 
   const fetchRecommendations = async () => {
+    setLoading(true);
     try {
-      const res = await fetch('/api/expert/recommendations?limit=5');
+      const marketParam = market !== 'all' ? `&market=${market}` : '';
+      const res = await fetch(`/api/expert/recommendations?limit=5${marketParam}`);
       const data = await res.json();
 
       const today = new Date().toISOString().split('T')[0];
@@ -44,6 +49,10 @@ export default function SignalsPage() {
       console.error('Error fetching recommendations:', error);
       setLoading(false);
     }
+  };
+
+  const getCurrencySymbol = (currency: string): string => {
+    return currency === 'THB' ? '฿' : '$';
   };
 
   const getRecommendationConfig = (recommendation: string) => {
@@ -214,15 +223,57 @@ export default function SignalsPage() {
                 Top 5 Daily Picks • Expert Advisory Board • Consensus-Driven Analysis
               </p>
             </div>
-            <Link
-              href="/pipeline"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-bg-card border border-border hover:border-primary transition-all duration-300 group"
-            >
-              <svg className="w-5 h-5 text-text-secondary group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              <span className="text-text-secondary group-hover:text-primary transition-colors font-medium">Back to Pipeline</span>
-            </Link>
+
+            {/* Market Selector */}
+            <div className="flex flex-col gap-4">
+              {/* Market Selector */}
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-text-secondary font-medium">Market:</span>
+                <div className="flex rounded-lg overflow-hidden border border-border">
+                  <button
+                    onClick={() => setMarket('all')}
+                    className={`px-4 py-2 text-sm font-medium transition-all ${
+                      market === 'all'
+                        ? 'bg-primary text-white'
+                        : 'bg-bg-card text-text-secondary hover:text-white hover:bg-bg-secondary'
+                    }`}
+                  >
+                    All Markets
+                  </button>
+                  <button
+                    onClick={() => setMarket('US')}
+                    className={`px-4 py-2 text-sm font-medium transition-all ${
+                      market === 'US'
+                        ? 'bg-primary text-white'
+                        : 'bg-bg-card text-text-secondary hover:text-white hover:bg-bg-secondary'
+                    }`}
+                  >
+                    🇺🇸 US (S&P 500)
+                  </button>
+                  <button
+                    onClick={() => setMarket('TH')}
+                    className={`px-4 py-2 text-sm font-medium transition-all ${
+                      market === 'TH'
+                        ? 'bg-primary text-white'
+                        : 'bg-bg-card text-text-secondary hover:text-white hover:bg-bg-secondary'
+                    }`}
+                  >
+                    🇹🇭 TH (SET100)
+                  </button>
+                </div>
+              </div>
+
+              {/* Back to Pipeline Link */}
+              <Link
+                href="/pipeline"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-bg-card border border-border hover:border-primary transition-all duration-300 group"
+              >
+                <svg className="w-5 h-5 text-text-secondary group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span className="text-text-secondary group-hover:text-primary transition-colors font-medium">Back to Pipeline</span>
+              </Link>
+            </div>
           </div>
 
           {/* Expert Advisory Board */}
@@ -381,9 +432,18 @@ export default function SignalsPage() {
                         <span className="text-white font-bold text-2xl">#{index + 1}</span>
                       </div>
                       <div>
-                        <h3 className="text-2xl font-bold text-white group-hover:text-primary transition-colors">
-                          {rec.symbol}
-                        </h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-2xl font-bold text-white group-hover:text-primary transition-colors">
+                            {rec.symbol}
+                          </h3>
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                            rec.market === 'TH'
+                              ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                              : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                          }`}>
+                            {rec.market === 'TH' ? '🇹🇭 TH' : '🇺🇸 US'}
+                          </span>
+                        </div>
                         <p className="text-sm text-text-secondary">
                           {rec.name || 'N/A'}
                         </p>

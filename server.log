@@ -1,0 +1,103 @@
+
+> trading-web@0.1.0 start
+> next start -p 3030
+
+   ▲ Next.js 15.5.9
+   - Local:        http://localhost:3030
+   - Network:      http://192.192.4.109:3030
+
+ ✓ Starting...
+ ✓ Ready in 241ms
+Metrics collection started
+[yahoo-finance2] v2 is no longer maintained nor supported.  Please migrate to v3. See https://github.com/gadicc/yahoo-finance2/blob/dev/docs/UPGRADING.md for details.
+[2026-01-26T11:07:57.606Z] [INFO] Job scheduler initializing...
+[yahoo-finance2] v2 is no longer maintained nor supported.  Please migrate to v3. See https://github.com/gadicc/yahoo-finance2/blob/dev/docs/UPGRADING.md for details.
+[2026-01-26T11:07:57.792Z] [INFO] Scheduled job cmkuo24ts0000471nsy74hyox with cron: 0 23 * * *
+[2026-01-26T11:07:57.792Z] [INFO] Initialized 1 jobs
+Metrics collected and stored successfully
+Failed to fetch dashboard data (returning empty): This operation was aborted
+Failed to fetch dashboard data (returning empty): This operation was aborted
+Failed to fetch dashboard data (returning empty): This operation was aborted
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+ ⨯ TypeError: fetch failed
+    at async x (.next/server/app/admin/page.js:2:11870)
+    at async z (.next/server/app/admin/page.js:2:12190) {
+  digest: '1478857856',
+  [cause]: [Error [HeadersTimeoutError]: Headers Timeout Error] {
+    code: 'UND_ERR_HEADERS_TIMEOUT'
+  }
+}
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Failed to fetch dashboard data (returning empty): This operation was aborted
+Error fetching monitoring data: TypeError: (0 , w.auth) is not a function
+    at x (.next/server/app/api/admin/monitoring/route.js:1:3291)
+Metrics collected and stored successfully
+Failed to fetch dashboard data (returning empty): This operation was aborted
+Failed to fetch dashboard data (returning empty): This operation was aborted
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully

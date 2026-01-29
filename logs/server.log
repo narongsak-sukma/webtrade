@@ -1,0 +1,40 @@
+
+> trading-web@0.1.0 start
+> next start -p 3030
+
+   ▲ Next.js 15.5.9
+   - Local:        http://localhost:3030
+   - Network:      http://172.20.10.2:3030
+
+ ✓ Starting...
+ ✓ Ready in 253ms
+Metrics collection started
+[yahoo-finance2] v2 is no longer maintained nor supported.  Please migrate to v3. See https://github.com/gadicc/yahoo-finance2/blob/dev/docs/UPGRADING.md for details.
+[2026-01-28T18:04:46.601Z] [INFO] Job scheduler initializing...
+[yahoo-finance2] v2 is no longer maintained nor supported.  Please migrate to v3. See https://github.com/gadicc/yahoo-finance2/blob/dev/docs/UPGRADING.md for details.
+[2026-01-28T18:04:46.794Z] [INFO] Scheduled job cmkuo24ts0000471nsy74hyox with cron: 0 23 * * *
+[2026-01-28T18:04:46.794Z] [INFO] Initialized 1 jobs
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully
+Metrics collected and stored successfully

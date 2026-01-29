@@ -1,0 +1,234 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Stock {
+  symbol        String   @id
+  name          String
+  exchange      String
+  sector        String?
+  industry      String?
+  marketCap     BigInt?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  prices        StockPrice[]
+  screenedStocks ScreenedStock[]
+  signals       Signal[]
+
+  @@map("stocks")
+}
+
+model StockPrice {
+  id         String   @id @default(cuid())
+  symbol     String
+  date       DateTime
+  open       Decimal  @db.Decimal(10, 4)
+  high       Decimal  @db.Decimal(10, 4)
+  low        Decimal  @db.Decimal(10, 4)
+  close      Decimal  @db.Decimal(10, 4)
+  volume     BigInt
+  adjClose   Decimal  @db.Decimal(10, 4) @map("adj_close")
+  createdAt  DateTime @default(now())
+
+  stock      Stock    @relation(fields: [symbol], references: [symbol], onDelete: Cascade)
+
+  @@unique([symbol, date])
+  @@index([symbol, date])
+  @@map("stock_prices")
+}
+
+model ScreenedStock {
+  id                      String    @id @default(cuid())
+  symbol                  String
+  date                    DateTime  @default(now())
+  price                   Decimal   @db.Decimal(10, 4)
+  ma50                    Decimal   @db.Decimal(10, 4)
+  ma150                   Decimal   @db.Decimal(10, 4)
+  ma200                   Decimal   @db.Decimal(10, 4)
+
+  // Original Minervini Criteria 1-8
+  priceAboveMa150         Boolean   @map("price_above_ma150")
+  ma150AboveMa200         Boolean   @map("ma150_above_ma200")
+  ma200TrendingUp         Boolean   @map("ma200_trending_up")
+  ma50AboveMa150          Boolean   @map("ma50_above_ma150")
+  priceAboveMa50          Boolean   @map("price_above_ma50")
+  priceAbove52WeekLow     Boolean   @map("price_above_52w_low")
+  priceNear52WeekHigh     Boolean   @map("price_near_52w_high")
+  relativeStrengthPositive Boolean  @map("rs_positive")
+
+  // Explainable Filters 9-14
+  rsi                     Decimal?  @db.Decimal(10, 4)           // RSI value
+  rsiInRange              Boolean   @default(false) @map("rsi_in_range")     // Filter 9: RSI 30-70
+  volume                  BigInt?                                 // Volume
+  volumeAvg50             BigInt?   @map("volume_avg_50")        // 50-day average volume
+  volumeAboveAvg          Boolean   @default(false) @map("volume_above_avg") // Filter 10: Volume
+  macd                    Decimal?  @db.Decimal(10, 4)           // MACD line
+  macdSignal              Decimal?  @map("macd_signal")           // MACD signal line
+  macdBullish             Boolean   @default(false) @map("macd_bullish")     // Filter 11: MACD
+  adx                     Decimal?  @db.Decimal(10, 4)           // ADX
+  adxStrong               Boolean   @default(false) @map("adx_strong")       // Filter 12: ADX
+  ma20                    Decimal?  @db.Decimal(10, 4)           // 20-day MA
+  priceAboveMa20          Boolean   @default(false) @map("price_above_ma20") // Filter 13: MA20
+  bollingerUpper          Decimal?  @map("bb_upper")              // Bollinger Upper
+  bollingerMiddle         Decimal?  @map("bb_middle")             // Bollinger Middle
+  bollingerLower          Decimal?  @map("bb_lower")              // Bollinger Lower
+  priceInBBRange          Boolean   @default(false) @map("price_in_bb_range") // Filter 14: BB
+
+  // Additional metadata
+  week52Low               Decimal?  @db.Decimal(10, 4)
+  week52High              Decimal?  @db.Decimal(10, 4)
+  relativeStrength        Decimal?  @db.Decimal(10, 4)
+  passedCriteria          Int       @map("passed_criteria")
+  totalCriteria           Int       @default(14) @map("total_criteria")  // Total filters (now 14)
+  createdAt               DateTime  @default(now())
+
+  stock                   Stock     @relation(fields: [symbol], references: [symbol], onDelete: Cascade)
+
+  @@unique([symbol, date])
+  @@index([symbol, date])
+  @@map("screened_stocks")
+}
+
+model Signal {
+  id              String    @id @default(cuid())
+  symbol          String
+  date            DateTime  @default(now())
+  signal          Int       // 1 = buy, 0 = hold, -1 = sell
+  confidence      Decimal   @db.Decimal(5, 4)
+
+  // Features
+  ma20Ma50        Decimal   @db.Decimal(10, 4) @map("ma20_ma50")
+  rsi             Decimal   @db.Decimal(10, 4)
+  macd            Decimal   @db.Decimal(10, 4)
+  macdSignal      Decimal   @db.Decimal(10, 4) @map("macd_signal")
+  macdHistogram   Decimal   @db.Decimal(10, 4) @map("macd_histogram")
+  bollingerUpper  Decimal?  @db.Decimal(10, 4) @map("bb_upper")
+  bollingerMiddle Decimal?  @db.Decimal(10, 4) @map("bb_middle")
+  bollingerLower  Decimal?  @db.Decimal(10, 4) @map("bb_lower")
+  obv             BigInt
+  ichimokuTenkan  Decimal?  @db.Decimal(10, 4) @map("ichi_tenkan")
+  ichimokuKijun   Decimal?  @db.Decimal(10, 4) @map("ichi_kijun")
+  ichimokuSenkouA Decimal?  @db.Decimal(10, 4) @map("ichi_senkou_a")
+  ichimokuSenkouB Decimal?  @db.Decimal(10, 4) @map("ichi_senkou_b")
+
+  createdAt       DateTime  @default(now())
+
+  stock           Stock     @relation(fields: [symbol], references: [symbol], onDelete: Cascade)
+
+  @@unique([symbol, date])
+  @@index([symbol, date])
+  @@map("signals")
+}
+
+model Job {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  type          String    // 'data_feed', 'screening', 'ml_signals'
+  status        String    @default("idle") // 'idle', 'running', 'stopped', 'error'
+  lastRun       DateTime? @map("last_run")
+  nextRun       DateTime? @map("next_run")
+  schedule      String?   // cron expression or time string
+  enabled       Boolean   @default(true)
+  settings      Json?     // flexible settings for each job type
+  lastError     String?   @map("last_error")
+  runCount      Int       @default(0) @map("run_count")
+  lastDuration  Int?      @map("last_duration") // in seconds
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("jobs")
+}
+
+model JobLog {
+  id            String   @id @default(cuid())
+  jobId         String   @map("job_id")
+  status        String   // 'started', 'completed', 'failed'
+  message       String?
+  error         String?
+  duration      Int?     // in seconds
+  startedAt     DateTime @default(now()) @map("started_at")
+  completedAt   DateTime? @map("completed_at")
+
+  @@index([jobId, startedAt])
+  @@map("job_logs")
+}
+
+model Watchlist {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  symbol        String
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, symbol])
+  @@index([userId])
+  @@map("watchlists")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String
+  name          String?
+  role          String   @default("user") // 'user', 'admin'
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("users")
+}
+
+// Monitoring models
+model MetricSnapshot {
+  id              String   @id @default(cuid())
+  timestamp       DateTime @default(now())
+
+  // Server metrics
+  cpuUsage        Decimal  @map("cpu_usage") @db.Decimal(5, 4)
+  memoryUsage     Decimal  @map("memory_usage") @db.Decimal(5, 4)
+  diskUsage       Decimal  @map("disk_usage") @db.Decimal(5, 4)
+  uptime          BigInt
+
+  // Database metrics
+  dbConnections   Int      @map("db_connections")
+  queryLatency    Int      @map("query_latency") // ms
+  slowQueries     Int      @map("slow_queries")
+  databaseSize    BigInt   @map("database_size")
+
+  // Job metrics
+  totalJobs       Int      @map("total_jobs")
+  runningJobs     Int      @map("running_jobs")
+  failedJobs      Int      @map("failed_jobs")
+  avgJobDuration  Int?     @map("avg_job_duration") // ms
+
+  // API metrics
+  apiRps          Decimal  @map("api_rps") @db.Decimal(10, 4)
+  apiLatency      Int      @map("api_latency") // ms
+  errorRate       Decimal  @map("error_rate") @db.Decimal(5, 4)
+
+  @@index([timestamp])
+  @@map("metric_snapshots")
+}
+
+model Alert {
+  id          String   @id @default(cuid())
+  timestamp   DateTime @default(now())
+  severity    String   // 'info', 'warning', 'critical'
+  source      String
+  message     String
+  metadata    Json?
+  resolved    Boolean  @default(false)
+  resolvedAt  DateTime? @map("resolved_at")
+
+  @@index([timestamp, severity])
+  @@index([resolved])
+  @@map("alerts")
+}

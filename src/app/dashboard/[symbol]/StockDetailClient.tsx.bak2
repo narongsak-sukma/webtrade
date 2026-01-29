@@ -1,0 +1,184 @@
+'use client';
+
+import { useState, useMemo } from 'react';
+import { StockChart, IndicatorChart, ChartControls } from '@/components/charts';
+import { PriceDataPoint, IndicatorConfig, Timeframe } from '@/types/agent-contracts';
+
+interface StockDetailPageProps {
+  symbol: string;
+  name: string;
+  exchange: string;
+  prices: any[];
+  signals: any[];
+}
+
+export function StockDetailClient({ symbol, name, exchange, prices, signals }: StockDetailPageProps) {
+  const [timeframe, setTimeframe] = useState<Timeframe>('1M');
+  const [chartType, setChartType] = useState<'area' | 'line' | 'candlestick'>('area');
+  const [indicators, setIndicators] = useState<IndicatorConfig[]>([
+    { type: 'MA', period: 50, color: '#3b82f6', visible: true },
+    { type: 'MA', period: 150, color: '#8b5cf6', visible: true },
+    { type: 'MA', period: 200, color: '#ec4899', visible: true },
+  ]);
+
+  // Transform price data to PriceDataPoint format
+  const chartData = useMemo(() => {
+    return prices.map((price: any) => ({
+      date: new Date(price.date),
+      open: Number(price.open),
+      high: Number(price.high),
+      low: Number(price.low),
+      close: Number(price.close),
+      volume: Number(price.volume),
+    }));
+  }, [prices]);
+
+  // Filter data by timeframe
+  const filteredData = useMemo(() => {
+    const now = new Date();
+    const timeframeDays = {
+      '1D': 1,
+      '1W': 7,
+      '1M': 30,
+      '3M': 90,
+      '1Y': 365,
+      'ALL': chartData.length,
+    };
+
+    const days = timeframeDays[timeframe];
+    if (days === chartData.length) return chartData;
+
+    return chartData.slice(-days);
+  }, [chartData, timeframe]);
+
+  const handleTimeframeChange = (newTimeframe: Timeframe) => {
+    setTimeframe(newTimeframe);
+  };
+
+  const handleChartTypeChange = (newType: 'area' | 'line' | 'candlestick') => {
+    setChartType(newType);
+  };
+
+  const handleIndicatorToggle = (index: number) => {
+    setIndicators(prev =>
+      prev.map((ind, i) =>
+        i === index ? { ...ind, visible: !ind.visible } : ind
+      )
+    );
+  };
+
+  const signalType = (signal: number) => signal === 1 ? 'buy' : signal === -1 ? 'sell' : 'hold';
+  const signalColors = {
+    buy: 'bg-green-100 text-green-800 border-green-200',
+    sell: 'bg-red-100 text-red-800 border-red-200',
+    hold: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <nav className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-gray-900">TradingWeb</h1>
+            <div className="flex gap-4">
+              <Link href="/dashboard" className="text-blue-600 hover:text-blue-700 font-medium">
+                Dashboard
+              </a>
+              <a href="/admin" className="text-gray-600 hover:text-gray-700 font-medium">
+                Admin
+              </a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div className="container mx-auto px-4 py-8">
+        <a
+          href="/dashboard"
+          className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6"
+        >
+          ← Back to Dashboard
+        </a>
+
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+          {/* Stock Header */}
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              {symbol}
+            </h2>
+            <p className="text-lg text-gray-600">{name}</p>
+            <p className="text-sm text-gray-500">{exchange}</p>
+          </div>
+
+          {/* Chart Controls */}
+          <div className="mb-6">
+            <ChartControls
+              timeframe={timeframe}
+              onTimeframeChange={handleTimeframeChange}
+              indicators={indicators}
+              onIndicatorToggle={handleIndicatorToggle}
+              chartType={chartType}
+              onChartTypeChange={handleChartTypeChange}
+            />
+          </div>
+
+          {/* Price Chart */}
+          <div className="mb-8">
+            <StockChart
+              symbol={symbol}
+              data={filteredData}
+              indicators={indicators}
+              timeframe={timeframe}
+              onTimeframeChange={handleTimeframeChange}
+              height={400}
+              chartType={chartType}
+            />
+          </div>
+
+          {/* Indicator Charts */}
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold mb-4">Technical Indicators</h3>
+            <IndicatorChart
+              symbol={symbol}
+              data={filteredData}
+              indicators={[
+                { type: 'RSI', period: 14, color: '#8b5cf6', visible: true },
+                { type: 'MACD', params: { fastPeriod: 12, slowPeriod: 26, signalPeriod: 9 }, color: '#ec4899', visible: true },
+                { type: 'BB', period: 20, params: { stdDev: 2 }, color: '#3b82f6', visible: true },
+              ]}
+              height={200}
+            />
+          </div>
+
+          {/* Recent Signals */}
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Recent Signals</h3>
+            {signals.length === 0 ? (
+              <p className="text-gray-500">No signals available yet.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {signals.map((signal: any) => (
+                  <div key={signal.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${signalColors[signalType(signal.signal)]}`}>
+                        {signalType(signal.signal).toUpperCase()}
+                      </span>
+                      <span className="text-sm text-gray-600">
+                        {new Date(signal.date).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600 space-y-1">
+                      <p>Confidence: {(signal.confidence * 100).toFixed(1)}%</p>
+                      <p>RSI: {signal.rsi.toFixed(2)}</p>
+                      <p>MACD: {signal.macd.toFixed(2)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

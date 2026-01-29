@@ -1,0 +1,86 @@
+{
+  "stocks": [
+    {
+      "symbol": "AAPL",
+      "name": "Apple Inc.",
+      "exchange": "NASDAQ",
+      "sector": "Technology",
+      "industry": "Consumer Electronics",
+      "marketCap": 2500000000000
+    },
+    {
+      "symbol": "MSFT",
+      "name": "Microsoft Corporation",
+      "exchange": "NASDAQ",
+      "sector": "Technology",
+      "industry": "Software",
+      "marketCap": 2300000000000
+    },
+    {
+      "symbol": "GOOGL",
+      "name": "Alphabet Inc.",
+      "exchange": "NASDAQ",
+      "sector": "Technology",
+      "industry": "Internet Services",
+      "marketCap": 1800000000000
+    },
+    {
+      "symbol": "NVDA",
+      "name": "NVIDIA Corporation",
+      "exchange": "NASDAQ",
+      "sector": "Technology",
+      "industry": "Semiconductors",
+      "marketCap": 1500000000000
+    },
+    {
+      "symbol": "TSLA",
+      "name": "Tesla, Inc.",
+      "exchange": "NASDAQ",
+      "sector": "Consumer Cyclical",
+      "industry": "Auto Manufacturers",
+      "marketCap": 800000000000
+    }
+  ],
+  "screeningResults": [
+    {
+      "symbol": "AAPL",
+      "date": "2024-01-15T00:00:00.000Z",
+      "price": 185.92,
+      "ma50": 182.45,
+      "ma150": 178.32,
+      "ma200": 175.21,
+      "priceAboveMa150": true,
+      "ma150AboveMa200": true,
+      "ma200TrendingUp": true,
+      "ma50AboveMa150": true,
+      "priceAboveMa50": true,
+      "priceAbove52WeekLow": true,
+      "priceNear52WeekHigh": true,
+      "relativeStrengthPositive": true,
+      "week52Low": 145.61,
+      "week52High": 199.62,
+      "relativeStrength": 25.3,
+      "passedCriteria": 9
+    },
+    {
+      "symbol": "NVDA",
+      "date": "2024-01-15T00:00:00.000Z",
+      "price": 592.35,
+      "ma50": 565.23,
+      "ma150": 489.45,
+      "ma200": 456.78,
+      "priceAboveMa150": true,
+      "ma150AboveMa200": true,
+      "ma200TrendingUp": true,
+      "ma50AboveMa150": true,
+      "priceAboveMa50": true,
+      "priceAbove52WeekLow": true,
+      "priceNear52WeekHigh": true,
+      "relativeStrengthPositive": true,
+      "week52Low": 216.23,
+      "week52High": 605.67,
+      "relativeStrength": 158.2,
+      "passedCriteria": 9
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: tradingweb-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: tradingweb
+      POSTGRES_PASSWORD: tradingweb_password
+      POSTGRES_DB: tradingweb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tradingweb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tradingweb-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://tradingweb:tradingweb_password@postgres:5432/tradingweb?schema=public
+      JWT_SECRET: ${JWT_SECRET:-change-this-to-a-secure-random-string-min-32-characters-long-for-production}
+      NODE_ENV: production
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      MONITORING_ENABLED: "true"
+      HEALTH_CHECK_INTERVAL: "60000"
+      DATA_FEED_SCHEDULE: "0 23 * * *"
+      SCREENING_SCHEDULE: "30 23 * * *"
+      ML_SIGNALS_SCHEDULE: "0 0 * * *"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  postgres_data:
+    driver: local

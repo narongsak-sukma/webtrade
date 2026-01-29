@@ -1,0 +1,394 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Premium Fintech Color Palette */
+  --color-primary: #00D4AA;
+  --color-primary-dark: #00B894;
+  --color-primary-light: #5DF5CE;
+
+  --color-secondary: #6366F1;
+  --color-secondary-dark: #4F46E5;
+
+  --color-success: #10B981;
+  --color-success-light: #34D399;
+  --color-success-bg: rgba(16, 185, 129, 0.1);
+
+  --color-danger: #EF4444;
+  --color-danger-light: #F87171;
+  --color-danger-bg: rgba(239, 68, 68, 0.1);
+
+  --color-warning: #F59E0B;
+  --color-warning-light: #FBBF24;
+  --color-warning-bg: rgba(245, 158, 11, 0.1);
+
+  --color-bg-primary: #0A0E27;
+  --color-bg-secondary: #131829;
+  --color-bg-tertiary: #1A1F35;
+  --color-bg-card: #1E2439;
+  --color-bg-hover: #252B44;
+
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #9CA3AF;
+  --color-text-tertiary: #6B7280;
+  --color-text-muted: #4B5563;
+
+  --color-border: #2D3548;
+  --color-border-light: #374151;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+
+  --glow-primary: 0 0 20px rgba(0, 212, 170, 0.3);
+  --glow-success: 0 0 20px rgba(16, 185, 129, 0.3);
+  --glow-danger: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-bg-primary text-text-primary antialiased;
+    font-family: 'Space Grotesk', sans-serif;
+    background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  /* Premium scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-bg-secondary;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-bg-tertiary rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-text-muted;
+  }
+}
+
+@layer components {
+  /* Premium card base */
+  .card-premium {
+    @apply bg-bg-card rounded-2xl border border-border shadow-lg;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-premium::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .card-premium:hover {
+    @apply shadow-xl border-border-light;
+    transform: translateY(-2px);
+  }
+
+  .card-premium:hover::before {
+    opacity: 1;
+  }
+
+  /* Stat card with glow */
+  .stat-card {
+    @apply card-premium p-6;
+    background: linear-gradient(135deg, var(--color-bg-card) 0%, var(--color-bg-tertiary) 100%);
+  }
+
+  .stat-card-success {
+    @apply stat-card;
+    box-shadow: var(--glow-success), var(--shadow-lg);
+  }
+
+  .stat-card-danger {
+    @apply stat-card;
+    box-shadow: var(--glow-danger), var(--shadow-lg);
+  }
+
+  /* Premium button */
+  .btn-premium {
+    @apply px-6 py-3 rounded-xl font-medium transition-all duration-300;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    box-shadow: var(--glow-primary), var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-premium::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .btn-premium:hover::before {
+    left: 100%;
+  }
+
+  .btn-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(0, 212, 170, 0.5);
+  }
+
+  /* Badge styles */
+  .badge {
+    @apply px-3 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1.5;
+  }
+
+  .badge-success {
+    @apply badge;
+    background: var(--color-success-bg);
+    color: var(--color-success-light);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+
+  .badge-danger {
+    @apply badge;
+    background: var(--color-danger-bg);
+    color: var(--color-danger-light);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+
+  .badge-warning {
+    @apply badge;
+    background: var(--color-warning-bg);
+    color: var(--color-warning-light);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+
+  /* Table styles */
+  .table-premium {
+    @apply w-full;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .table-premium thead th {
+    @apply bg-bg-tertiary text-text-secondary text-xs font-semibold uppercase tracking-wider;
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 2px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .table-premium tbody tr {
+    @apply border-b border-border transition-all duration-200;
+  }
+
+  .table-premium tbody tr:hover {
+    @apply bg-bg-hover;
+  }
+
+  .table-premium tbody td {
+    @apply py-4 px-6;
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    @apply h-2 rounded-full overflow-hidden;
+    background: var(--color-bg-tertiary);
+  }
+
+  .progress-bar-fill {
+    @apply h-full rounded-full transition-all duration-500;
+    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+    box-shadow: var(--glow-primary);
+  }
+
+  /* Input styles */
+  .input-premium {
+    @apply w-full px-4 py-3 rounded-xl bg-bg-tertiary border border-border text-text-primary;
+    transition: all 0.2s ease;
+  }
+
+  .input-premium:focus {
+    @apply border-primary outline-none;
+    box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+  }
+
+  /* Metric display */
+  .metric-value {
+    @apply text-3xl font-bold;
+    font-family: 'JetBrains Mono', monospace;
+    background: linear-gradient(135deg, var(--color-text-primary) 0%, var(--color-primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Filter tag */
+  .filter-tag {
+    @apply px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer;
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+  }
+
+  .filter-tag:hover {
+    @apply border-primary;
+    background: rgba(0, 212, 170, 0.1);
+  }
+
+  .filter-tag-active {
+    @apply filter-tag;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    border-color: var(--color-primary);
+    color: white;
+    box-shadow: var(--glow-primary);
+  }
+
+  /* Animated background */
+  .bg-animated {
+    background: linear-gradient(-45deg, #0A0E27, #131829, #1A1F35, #0A0E27);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+  }
+
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Glow effect */
+  .glow-effect {
+    position: relative;
+  }
+
+  .glow-effect::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    filter: blur(20px);
+    opacity: 0.5;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+  }
+
+  /* Status indicator */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .status-dot-success {
+    @apply status-dot bg-success;
+    box-shadow: 0 0 10px var(--color-success);
+  }
+
+  .status-dot-danger {
+    @apply status-dot bg-danger;
+    box-shadow: 0 0 10px var(--color-danger);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Section header */
+  .section-header {
+    @apply mb-6;
+  }
+
+  .section-header h2 {
+    @apply text-2xl font-bold text-text-primary mb-1;
+  }
+
+  .section-header p {
+    @apply text-text-secondary text-sm;
+  }
+}
+
+/* Custom animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-slide-up {
+  animation: slideInUp 0.5s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+/* Utility classes for common fintech patterns */
+.text-up {
+  @apply text-success;
+}
+
+.text-down {
+  @apply text-danger;
+}
+
+.bg-up {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.bg-down {
+  background: rgba(239, 68, 68, 0.1);
+}
